@@ -1,0 +1,127 @@
+/* ============================================================
+   ANIMATION SYSTEM
+   Restrained per design system:
+   - Fade in / opacity transitions only
+   - Max 8px movement (prefer 4px)
+   - No parallax, no infinite loops, no physics-heavy springs
+   - All durations: 300ms–500ms
+============================================================ */
+
+/* ----------------------------------------------------------
+   KEYFRAMES
+---------------------------------------------------------- */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px);  }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes fade-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes fade-left {
+  from { opacity: 0; transform: translateX(8px);  }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+@keyframes fade-right {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+/* Subtle border pulse — for accent/active states */
+@keyframes border-pulse {
+  0%, 100% { border-color: #27272a; }
+  50%       { border-color: #3f3f46; }
+}
+
+/* Cursor blink — for terminal-style elements */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Grain drift — transform-only, so it animates on the compositor and
+   never touches the main thread. Slow and small: felt, not seen. */
+@keyframes grain-drift {
+  0%   { transform: translate3d(0, 0, 0); }
+  25%  { transform: translate3d(-1.5%, 1%, 0); }
+  50%  { transform: translate3d(1%, -1.5%, 0); }
+  75%  { transform: translate3d(-1%, -1%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* Marquee lanes — content is duplicated in markup, so -50% loops seamlessly */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+/* ----------------------------------------------------------
+   ANIMATION TOKENS
+   Maps to animate-* Tailwind utilities.
+   e.g. className="animate-fade-up"
+---------------------------------------------------------- */
+
+@theme {
+  --animate-fade-in:    fade-in   0.3s ease          forwards;
+  --animate-fade-out:   fade-out  0.3s ease          forwards;
+  --animate-fade-up:    fade-up   0.45s ease         forwards;
+  --animate-fade-down:  fade-down 0.45s ease         forwards;
+  --animate-fade-left:  fade-left 0.45s ease         forwards;
+  --animate-fade-right: fade-right 0.45s ease        forwards;
+  --animate-border-pulse: border-pulse 2s ease-in-out infinite;
+  --animate-cursor-blink: cursor-blink 1s step-end   infinite;
+  --animate-grain-drift:  grain-drift  14s ease-in-out infinite;
+  --animate-marquee-left:  marquee-left  36s linear infinite;
+  --animate-marquee-right: marquee-right 36s linear infinite;
+}
+
+/* ----------------------------------------------------------
+   DELAY UTILITIES
+   Pair with any animate-* class:
+   className="animate-fade-up delay-100"
+   Using Tailwind v4 @utility for named delays.
+---------------------------------------------------------- */
+
+@utility delay-75  { animation-delay: 75ms;  }
+@utility delay-100 { animation-delay: 100ms; }
+@utility delay-150 { animation-delay: 150ms; }
+@utility delay-200 { animation-delay: 200ms; }
+@utility delay-300 { animation-delay: 300ms; }
+@utility delay-500 { animation-delay: 500ms; }
+@utility delay-700 { animation-delay: 700ms; }
+
+/* ----------------------------------------------------------
+   REDUCED MOTION
+   Collapse all animations for users who prefer it.
+   Framer Motion's useReducedMotion handles JS-side.
+---------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

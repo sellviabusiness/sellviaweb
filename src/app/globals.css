@@ -1,0 +1,451 @@
+@import "tailwindcss";
+@import "../styles/animations.css";
+
+/* ============================================================
+   DESIGN TOKENS
+   All tokens map to Tailwind utilities via @theme.
+   e.g. --color-accent → bg-accent / text-accent / border-accent
+        --text-display-xl → text-display-xl
+        --radius-card → rounded-card
+        --z-sticky → z-sticky
+============================================================ */
+
+@theme {
+  /* ----------------------------------------------------------
+     COLORS
+  ---------------------------------------------------------- */
+  /* Neutral ramp — depth comes from stacked surfaces, not decoration.
+     Each step is a real elevation: page → surface → elevated. */
+  --color-background: #060606;
+  --color-surface-01: #0d0d0d; /* raised panels  */
+  --color-surface-02: #131313; /* nested / elevated */
+  --color-border: #222222;
+  --color-border-hover: #333333;
+
+  --color-accent: #bfff13;
+  /* Off-white rather than #fff: pure white on near-black vibrates. */
+  --color-white: #f5f5f5;
+  --color-gray-01: #b4b4b4; /* secondary text */
+  --color-gray-02: #8b8b8b; /* muted text     */
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY — FAMILIES
+     One superfamily, three roles. IBM Plex was drawn for technical
+     systems — it carries precision without the neutrality that makes
+     Inter/Geist read as a default. Contrast between display and body
+     comes from weight, size and colour, not from a second typeface.
+  ---------------------------------------------------------- */
+  --font-heading: var(--font-display), system-ui, sans-serif;
+  --font-body: var(--font-body), system-ui, sans-serif;
+  /* No monospace anywhere on the page. Prices, labels, receipts and
+     the story rail all read in the same sans as body copy — the
+     "data voice" comes from size, tracking and colour, not typeface. */
+  --font-mono: var(--font-body), system-ui, sans-serif;
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY — SIZE SCALE
+     Display sizes are fluid: they interpolate with the viewport
+     instead of stepping at breakpoints, so headlines hold their
+     proportion on every screen.
+  ---------------------------------------------------------- */
+
+  /* Display — steeper than before so headlines read as a visual
+     element rather than large text. */
+  --text-display-2xl: clamp(3.5rem, 7vw, 6.5rem);        /* 56 → 104 */
+  --text-display-xl:  clamp(3rem, 5.6vw, 5rem);          /* 48 → 80  */
+  --text-display-lg:  clamp(2.5rem, 4.6vw, 3.75rem);     /* 40 → 60  */
+  --text-display-md:  clamp(2rem, 3.4vw, 2.75rem);       /* 32 → 44  */
+  --text-display-sm:  clamp(1.5rem, 2.2vw, 1.875rem);    /* 24 → 30  */
+
+  /* Headings — section sub-titles, card titles */
+  --text-heading-xl: 1.5rem;    /* 24px */
+  --text-heading-lg: 1.25rem;   /* 20px */
+  --text-heading-md: 1.0625rem; /* 17px */
+  --text-heading-sm: 1rem;      /* 16px */
+
+  /* Body — readable prose and supporting copy */
+  --text-body-lg: 1.125rem;     /* 18px */
+  --text-body-md: 1.0625rem;    /* 17px — base */
+  --text-body-sm: 0.9375rem;    /* 15px */
+  --text-body-xs: 0.8125rem;    /* 13px */
+
+  /* Labels & Metadata — small, uppercase, tracked */
+  --text-label-lg: 0.75rem;     /* 12px */
+  --text-label-sm: 0.6875rem;   /* 11px */
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY — LETTER SPACING
+  ---------------------------------------------------------- */
+  --tracking-tightest: -0.04em;
+  --tracking-tighter: -0.03em;
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY — LINE HEIGHTS
+  ---------------------------------------------------------- */
+  --leading-none: 1;
+  --leading-tighter: 1.1;
+  --leading-tight: 1.2;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* ----------------------------------------------------------
+     SPACING — SEMANTIC LAYOUT TOKENS
+     Maps to p-*, m-*, gap-*, w-*, h-*, etc.
+  ---------------------------------------------------------- */
+  --spacing-section: 7.5rem;      /* 120px — section block padding */
+  --spacing-section-sm: 5rem;     /* 80px  — mobile section padding */
+  --spacing-hero-top: 10rem;      /* 160px — hero top offset        */
+  --spacing-hero-bottom: 7.5rem;  /* 120px — hero bottom padding    */
+
+  /* ----------------------------------------------------------
+     EASING — shared with lib/motion.ts so CSS and JS animations
+     decelerate on identical curves.
+  ---------------------------------------------------------- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-soft: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* ----------------------------------------------------------
+     BORDER RADIUS
+     Maps to rounded-*
+  ---------------------------------------------------------- */
+  /* Zero everywhere. No rounding on any surface, including circular
+     elements — rounded-full flattens to a square along with the rest. */
+  --radius-none: 0px;
+  --radius-image: 0px;
+  --radius-sm: 0px;
+  --radius-button: 0px;
+  --radius-input: 0px;
+  --radius-card: 0px;
+  --radius-lg: 0px;
+  --radius-full: 0px;
+
+  /* ----------------------------------------------------------
+     SHADOWS — minimal; use borders as primary separation
+  ---------------------------------------------------------- */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-none: none;
+
+  /* ----------------------------------------------------------
+     Z-INDEX SCALE
+     Maps to z-*
+  ---------------------------------------------------------- */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+}
+
+/* ============================================================
+   CONTAINER UTILITIES
+   Applied directly to wrapper divs for consistent layout.
+   Use container-outer for page-level wrappers.
+   Use container-inner for content-width sections.
+   Use container-readable for long-form text.
+============================================================ */
+
+@utility container-outer {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(1.5rem, 6.25vw, 5rem);
+}
+
+@utility container-inner {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+@utility container-readable {
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+@utility container-headline {
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+@utility container-description {
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+@utility container-narrow {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+/* ============================================================
+   SECTION LAYOUT UTILITIES
+============================================================ */
+
+/* A rule that fades out at both ends instead of stopping dead —
+   used for every section divider so the page reads as continuous. */
+@utility hairline {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.11) 18%,
+    rgba(255, 255, 255, 0.11) 82%,
+    transparent
+  );
+}
+
+/* Raised panel: a hair lighter than the page, lit from above. */
+@utility panel {
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.028),
+      rgba(255, 255, 255, 0) 42%
+    ),
+    var(--color-surface-01);
+  border: 1px solid var(--color-border);
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Vertical rhythm — three deliberate tempos rather than one uniform gap.
+   loose  : centrepiece moments that need air around them
+   base   : standard narrative sections
+   tight  : sections that continue the thought above them */
+@utility section-padding {
+  padding-top: clamp(5.5rem, 9vw, 8.5rem);
+  padding-bottom: clamp(5.5rem, 9vw, 8.5rem);
+}
+
+@utility section-padding-loose {
+  padding-top: clamp(7.5rem, 13vw, 12rem);
+  padding-bottom: clamp(7.5rem, 13vw, 12rem);
+}
+
+@utility section-padding-tight {
+  padding-top: clamp(3.5rem, 6vw, 5.5rem);
+  padding-bottom: clamp(3.5rem, 6vw, 5.5rem);
+}
+
+@utility hero-padding {
+  padding-top: 10rem;
+  padding-bottom: 7.5rem;
+}
+
+/* ============================================================
+   BASE — applied after Tailwind Preflight
+
+   Wrapped in @layer base so these plain-selector rules sit BELOW
+   Tailwind's utility layer in the cascade. Without this, unlayered
+   CSS beats layered CSS regardless of specificity — e.g. this file's
+   `a { color: inherit }` was overriding every `text-*` utility on
+   every link and Link-rendered button on the page, and
+   `h1–h6 { font-weight: 600 }` was silently overriding any
+   `font-bold` applied to a heading. @layer base restores normal
+   utility-wins-over-base behaviour everywhere at once.
+============================================================ */
+
+@layer base {
+
+/* Fixed header is 64px — keep anchor targets clear of it */
+[id] {
+  scroll-margin-top: 5rem;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  font-size: var(--text-body-md);
+  line-height: 1.5;
+  /* clip, not hidden: contains stray decorative overflow without
+     breaking the position:sticky rails and headings above. */
+  overflow-x: clip;
+}
+
+/* ============================================================
+   ACCESSIBILITY
+============================================================ */
+
+:focus-visible {
+  outline: 2px solid #bfff13;
+  outline-offset: 3px;
+}
+
+/* Interactive surfaces get a soft accent halo alongside the outline. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  box-shadow: 0 0 0 5px rgba(191, 255, 19, 0.12);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-background);
+}
+
+/* ============================================================
+   TYPOGRAPHY DEFAULTS
+============================================================ */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+/* Optical correction: the larger the type, the tighter it wants to be
+   set and the closer the lines want to sit. IBM Plex is a wide face —
+   without this it reads corporate rather than editorial. */
+.text-display-2xl,
+.text-display-xl {
+  letter-spacing: -0.042em;
+  line-height: 0.98;
+}
+
+.text-display-lg,
+.text-display-md {
+  letter-spacing: -0.032em;
+  line-height: 1.04;
+}
+
+.text-display-sm {
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+}
+
+/* Body copy earns its own measure and leading — the contrast against
+   the display sizes is doing real hierarchy work. */
+p {
+  letter-spacing: -0.005em;
+}
+
+/* Prose never runs to a full-width measure. */
+p {
+  text-wrap: pretty;
+}
+
+/* Mono is the page's data voice — always tracked, always uppercase-friendly. */
+.font-mono {
+  font-feature-settings: "calt" 0;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   INTERACTIVE DEFAULTS
+============================================================ */
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+button {
+  cursor: pointer;
+  transition: opacity 0.15s ease, border-color 0.15s ease,
+    background-color 0.15s ease, color 0.15s ease;
+}
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* ============================================================
+   RANGE INPUT — the commission slider is a hero interaction,
+   so it gets a hand-built track and thumb rather than the
+   browser default.
+============================================================ */
+
+input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 2px;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -7px;
+  background: #bfff13;
+  box-shadow: 0 0 0 4px rgba(191, 255, 19, 0.14);
+  transition: box-shadow 0.2s var(--ease-out-soft),
+    transform 0.2s var(--ease-out-soft);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  background: #bfff13;
+  box-shadow: 0 0 0 4px rgba(191, 255, 19, 0.14);
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  box-shadow: 0 0 0 7px rgba(191, 255, 19, 0.18);
+  transform: scale(1.06);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  box-shadow: 0 0 0 9px rgba(191, 255, 19, 0.22);
+}
+
+} /* @layer base */
