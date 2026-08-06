@@ -108,7 +108,7 @@ export default function Footer() {
               aria-hidden
               className="h-1.5 w-1.5 animate-cursor-blink bg-accent"
             />
-            Status: validating the idea!
+            Status: validating the idea
           </p>
         </div>
       </div>
